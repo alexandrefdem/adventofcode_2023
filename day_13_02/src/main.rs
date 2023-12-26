@@ -44,9 +44,11 @@ fn check_reflection(pattern: &Vec<String>) -> u32{
     return cols_left_or_up
 }
 
-fn fix_smudge(pattern: &mut Vec<String>)
+fn fix_smudge(in_pattern: &Vec<String>)->Vec<String>
 {
+    let mut pattern = in_pattern.clone();
     let max_size = pattern.len() as i32 - 1;
+    let mut found_mismatch = false;
 
     for i in 0..max_size{
 
@@ -59,15 +61,24 @@ fn fix_smudge(pattern: &mut Vec<String>)
                 right_index += 1;
             }
             else {
-                let _mismatchs = pattern[left_index as usize].chars().zip(pattern[right_index as usize].chars()).filter(|(c1, c2)| c1 != c2).take(2).collect::<Vec<_>>();
-
-                //if mismatchs.count() == 1{
-                //    pattern[left_index as usize] = pattern[right_index as usize].clone();
-                //    break;
-                //}
+                let mismatchs = pattern[left_index as usize].chars().zip(pattern[right_index as usize].chars()).filter(|(c1, c2)| c1 != c2).take(2).collect::<Vec<_>>();
+                
+                if mismatchs.len() == 1{
+                    pattern[left_index as usize] = pattern[right_index as usize].clone();
+                    found_mismatch = true;
+                    break;
+                }
+                else{
+                    left_index -= 1;
+                    right_index += 1;
+                }
             }
         }
+        if found_mismatch{
+            break;
+        }
     }
+    pattern
 }
 
 fn main() {
@@ -97,7 +108,7 @@ fn main() {
                                                 }).collect();
 
     // Fix smudge
-    let _ = original_patterns.iter_mut().map(|x| fix_smudge(x));
+    original_patterns = original_patterns.iter().map(|x| fix_smudge(x)).collect();
 
     let transposed_patterns: Vec<Vec<String>> = transposed_pattern_vec.iter()
                                                 .map(|x| 
